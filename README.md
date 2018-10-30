@@ -1,6 +1,8 @@
 ### 3D Centerline extraction demo using geodesic distance transform in python
 #### Usage.
 	
+	see `demo.ipynb` for usage.
+	
 	# extract centerline between 2 points given a binary 3d mask
 	centerline_list = extract_centerline(img,start_point,end_point)
 	
