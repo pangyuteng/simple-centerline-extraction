@@ -63,10 +63,16 @@ def extract_centerline(img,start_point,end_point,search_radius=(2,2,2),return_mu
         # assign most centered and closer to start point location as next point in centerline.
         new_point_ind = region_ind[regional_new_point_ind]
         new_point = np.unravel_index(new_point_ind,shape)
+        
+        if new_point_ind in centerline_list:
+            break
+            
         centerline_list.append(new_point_ind)
         if len(centerline_list) > 3:
-            if np.take(ss_field,centerline_list[-2]) == np.take(ss_field,centerline_list[-1]):
+            # as we traverse in the `ss map`, `ss` value in last point (forefront) should be smaller than prior points, and end_point should have the highest `ss` value from all centerline points.
+            if np.take(ss_field,centerline_list[-2]) >= np.take(ss_field,centerline_list[-1]):
                 break
+                
     if return_multi_index:
         return np.unravel_index(centerline_list,shape)
     else:
