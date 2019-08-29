@@ -69,8 +69,8 @@ def extract_centerline(img,start_point,end_point,search_radius=(2,2,2),return_mu
             
         centerline_list.append(new_point_ind)
         if len(centerline_list) > 3:
-            # as we traverse in the `ss map`, `ss` value in last point (forefront) should be smaller than prior points, and end_point should have the highest `ss` value from all centerline points.
-            if np.take(ss_field,centerline_list[-2]) >= np.take(ss_field,centerline_list[-1]):
+            # as we traverse in the `ss map`, `ss` value in last point (forefront) should be smaller than prior points, and end_point should have the highest `ss` value from all centerline points. we `break` the while loop failing this criteria.
+            if np.take(ss_field,centerline_list[-2]) < np.take(ss_field,centerline_list[-1]):
                 break
                 
     if return_multi_index:
