@@ -1,6 +1,7 @@
 import numpy as np
 import skfmm
 from scipy.ndimage import distance_transform_edt
+from scipy.interpolate import UnivariateSpline
 
 def get_boundary_seeded_field(img):
     bs_field = distance_transform_edt(img>0)
@@ -77,8 +78,7 @@ def extract_centerline(img,start_point,end_point,search_radius=(2,2,2),return_mu
         return np.unravel_index(centerline_list,shape)
     else:
         return centerline_list
-        
-from scipy.interpolate import UnivariateSpline
+
 
 def smooth_3d_array(x,y,z,num=None,**kwargs):
     if num is None:
