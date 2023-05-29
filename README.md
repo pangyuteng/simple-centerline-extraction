@@ -29,8 +29,10 @@ Teng, Pang-yu, Ahmet Murat Bagci, and Noam Alperin. "Automated prescription of a
 https://www.ncbi.nlm.nih.gov/pubmed/21672671
 
 #### wip
+
 ```
 docker build -t wip .
 docker run -it -p 8888:8888 -w $PWD -v $PWD:$PWD wip bash
+jupyter notebook --ip=* --allow-root
 
 ```

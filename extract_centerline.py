@@ -87,5 +87,5 @@ def smooth_3d_array(x,y,z,num=None,**kwargs):
     sx = UnivariateSpline(w,x,**kwargs)
     sy = UnivariateSpline(w,y,**kwargs)
     sz = UnivariateSpline(w,z,**kwargs)
-    wnew = np.linspace(0,len(c_x),num)
+    wnew = np.linspace(0,len(x),num)
     return sx(wnew),sy(wnew),sz(wnew)
