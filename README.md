@@ -1,8 +1,12 @@
 ```
 
-+ 3d centerline extraction demo using geodesic distance transform in Python - see extract_centerline.py
++ 3d centerline extraction demo using geodesic distance transform in Python
 
-+ ** work-in-progress ** Extract oblique 2d slice (or 3d slab) from volume with SimpleITK - see extract_slice.py
+	see extract_centerline.py
+
++ Extract oblique 2d slice (or 3d slab) from volume with SimpleITK 
+
+	see extract_slice.py 
 
 ```
 
