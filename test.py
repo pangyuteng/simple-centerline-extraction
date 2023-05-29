@@ -32,6 +32,19 @@ class TestCenterlineExtraction(unittest.TestCase):
         self.assertEqual(len(actual_z),385)
         # z should be descending
         self.assertTrue(all(np.logical_or(np.gradient(actual_z)==0,np.gradient(actual_z)<0)))
-        
+
+    def test_extract_slice(self):
+        img,x,y,z = mock_image()
+        start_point = np.array([x[0],y[0],z[0]]).astype(int)
+        end_point = np.array([x[-1],y[-1],z[-1]]).astype(int)
+        from extract_centerline import extract_centerline, smooth_3d_array
+        centerline_list = extract_centerline(img,start_point,end_point)
+        actual_x, actual_y, actual_z = centerline_list
+        smooth_3d_array = actual_x, actual_y, actual_z
+        from extract_slice import extract_slice
+        #for x,y,z in zip(actual_x, actual_y, actual_z):
+        #    print(x,y,z)
+        print(img.shape)
+
 if __name__ == '__main__':
     unittest.main()
