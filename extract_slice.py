@@ -41,22 +41,32 @@ def vrrotvec(v1,v2,epsilon=1e-12):
 #
 # "Extract an oblique 2D slice from a 3D volume"
 #
-# https://itk.org/pipermail/insight-users/2007-May/022171.html
-# https://itk.org/ItkSoftwareGuide.pdf
-# 
-#        12 years later...writing the same function in python.
-# https://www.mathworks.com/matlabcentral/fileexchange/32032-extract-slice-from-volume
-# 
+# https://itk.org/pipermail/insight-users/2007-May/022171.html   lol
 #
-def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_size,is_label,out_value=-1000):
+def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_size,is_label,out_value=0):
     
     image_normal = list(itk_image.GetDirection())[6:]
 
     slice_direction = vrrotvec(image_normal,slice_normal)
-    slice_direction= tuple(slice_direction.ravel())
+    slice_direction = tuple(slice_direction.ravel())
     
     slice_size_mm = np.array(slice_size)*np.array(slice_spacing)
-    slice_origin = np.array(slice_center) - np.array(slice_size_mm)/2.0
+    
+    # our normal is (a,b,c)
+    # thus plane equation is ax+by+cz+d=0
+    a,b,c = image_normal
+    x,y,z = slice_center
+    d = -a*x-b*y*c*z
+    
+    # we project origin of input image to plane to get 2nd point on plane
+    alt_x,alt_y,_ = itk_image.GetOrigin()
+    alt_z = (-a*alt_x-b*alt_x-d)/c
+    alt_vec = np.array([alt_x,alt_y,alt_z])-np.array(slice_center)
+    alt_vec = _vrnormalize(alt_vec,1e-12)
+    print('alt_vec',alt_vec)
+    slice_origin = slice_center
+    slice_origin = slice_center-np.multiply(alt_vec,slice_size_mm/2)
+    
 
     resample = sitk.ResampleImageFilter()
     resample.SetOutputOrigin(slice_origin)
@@ -64,9 +74,10 @@ def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_size,i
     resample.SetOutputSpacing(slice_spacing)
     resample.SetSize(slice_size) # unit is voxel
     resample.SetDefaultPixelValue(out_value)
+    print('!',resample.GetOutputOrigin())
 
     axis = slice_normal
-    rotation_center = slice_center # TODO: remember to set center in case you want update the angle
+    rotation_center = slice_center
     angle = 0
     translation = (0,0,0)
     scale_factor = 1
@@ -88,4 +99,3 @@ def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_size,i
         resample.SetInterpolator(sitk.sitkLinear)
 
     return resample.Execute(itk_image)
-
