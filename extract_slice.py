@@ -38,59 +38,72 @@ def vrrotvec(v1,v2,epsilon=1e-12):
           [t*x*z - s*y,  t*y*z + s*x,  t*z*z + c], ]
     return np.array(m)
 
+
+def get_slice_origin(slice_center,slice_normal,slice_radius):
+
+    epsilon = 1e-12
+
+    image_normal = np.array([0.,0.,1.])
+    slice_direction = vrrotvec(image_normal,slice_normal).ravel()
+
+    direction_x = np.array(slice_direction[0:3])
+    direction_y = np.array(slice_direction[3:6])
+    direction_z = np.array(slice_direction[6:9])
+
+    #direction_x, direction_y = get_orthonormals(slice_normal)
+    vec_on_plane = _vrnormalize(direction_x+direction_y,epsilon)
+
+    # 45-45-90 triangle
+    # side length ratio: 1:1:sqrt(2)
+    # so the offset from center of square is...
+    #
+    offset = slice_radius*2/np.sqrt(2)
+    slice_origin = slice_center - vec_on_plane*offset
+
+    # slice_origin should be on the plane
+    a,b,c = tuple(direction_z)
+    x,y,z = tuple(slice_center)
+    d = -a*x-b*y-c*z
+    ox,oy,oz = slice_origin
+
+    assert(a*ox+b*oy+c*oz+d <= 1e-4)
+
+    return tuple(slice_origin)
+
 #
 # "Extract an oblique 2D slice from a 3D volume"
 #
 # https://itk.org/pipermail/insight-users/2007-May/022171.html   lol
 #
-def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_size,is_label,out_value=0):
-    
-    image_normal = list(itk_image.GetDirection())[6:]
+def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_radius,is_label):
+    slice_center = np.array(slice_center)
 
-    slice_direction = vrrotvec(image_normal,slice_normal)
-    slice_direction = tuple(slice_direction.ravel())
-    
-    slice_size_mm = np.array(slice_size)*np.array(slice_spacing)
-    
-    # our normal is (a,b,c)
-    # thus plane equation is ax+by+cz+d=0
-    a,b,c = image_normal
-    x,y,z = slice_center
-    d = -a*x-b*y*c*z
-    
-    # we project origin of input image to plane to get 2nd point on plane
-    alt_x,alt_y,_ = itk_image.GetOrigin()
-    alt_z = (-a*alt_x-b*alt_x-d)/c
-    alt_vec = np.array([alt_x,alt_y,alt_z])-np.array(slice_center)
-    alt_vec = _vrnormalize(alt_vec,1e-12)
-    print('alt_vec',alt_vec)
-    slice_origin = slice_center
-    slice_origin = slice_center-np.multiply(alt_vec,slice_size_mm/2)
-    
+    image_normal = np.array([0.,0.,1.])
+    rotation_matrix = vrrotvec(image_normal,slice_normal)
 
+    slice_direction = rotation_matrix.ravel()
+
+    direction_x = np.array(slice_direction[0:3])
+    direction_y = np.array(slice_direction[3:6])
+    direction_z = np.array(slice_direction[6:9])
+
+    slice_direction = []
+    slice_direction.extend(direction_x)
+    slice_direction.extend(direction_y)
+    slice_direction.extend(direction_z*-1) # what???
+    slice_direction = np.array(slice_direction)
+
+    slice_origin = get_slice_origin(slice_center,slice_normal,slice_radius)
+    radius_voxel = int(np.array(slice_radius)/np.array(slice_spacing[0]))
+    factor = 2
+    slice_size = (radius_voxel*factor,radius_voxel*factor,1)
     resample = sitk.ResampleImageFilter()
+    
     resample.SetOutputOrigin(slice_origin)
     resample.SetOutputDirection(slice_direction)
     resample.SetOutputSpacing(slice_spacing)
     resample.SetSize(slice_size) # unit is voxel
-    resample.SetDefaultPixelValue(out_value)
-    print('!',resample.GetOutputOrigin())
-
-    axis = slice_normal
-    rotation_center = slice_center
-    angle = 0
-    translation = (0,0,0)
-    scale_factor = 1
-    similarity = sitk.Similarity3DTransform(
-        scale_factor, axis, angle, translation, rotation_center
-    )
-
-    affine = sitk.AffineTransform(3)
-    affine.SetMatrix(similarity.GetMatrix())
-    affine.SetTranslation(similarity.GetTranslation())
-    affine.SetCenter(similarity.GetCenter())
-
-    resample.SetTransform(affine)
+    resample.SetTransform(sitk.Transform())
     resample.SetDefaultPixelValue(itk_image.GetPixelIDValue())
 
     if is_label:
@@ -98,4 +111,5 @@ def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_size,i
     else:
         resample.SetInterpolator(sitk.sitkLinear)
 
-    return resample.Execute(itk_image)
+    itk_image = resample.Execute(itk_image)
+    return itk_image
