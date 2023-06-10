@@ -104,7 +104,7 @@ def extract_slice(itk_image,slice_center,slice_normal,slice_spacing,slice_radius
     resample.SetOutputSpacing(slice_spacing)
     resample.SetSize(slice_size) # unit is voxel
     resample.SetTransform(sitk.Transform())
-    resample.SetDefaultPixelValue(itk_image.GetPixelIDValue())
+    resample.SetDefaultPixelValue(0)
 
     if is_label:
         resample.SetInterpolator(sitk.sitkNearestNeighbor)

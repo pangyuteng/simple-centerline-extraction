@@ -71,7 +71,7 @@ class MyTest(unittest.TestCase):
             slice_normal = np.array(point_post)-np.array(point_pre)
             slice_center = img_obj.TransformContinuousIndexToPhysicalPoint(coord_mid)
             slice_spacing = (0.5,0.5,0.5)
-            slice_radius = 10
+            slice_radius = 20
             is_label = False
             slice_obj = extract_slice(img_obj,slice_center,slice_normal,slice_spacing,slice_radius,is_label)
             arr = sitk.GetArrayFromImage(slice_obj)
@@ -81,7 +81,7 @@ class MyTest(unittest.TestCase):
             arr = arr.squeeze()
             arr = 255*((arr-np.min(arr))/(np.max(arr)-np.min(arr))).clip(0,1)
             arr = arr.astype(np.uint8)
-            #imageio.imwrite(f'slice-{idx}.png',arr)
+            imageio.imwrite(f'slice-{idx}.png',arr)
         
 if __name__ == '__main__':
     unittest.main()
