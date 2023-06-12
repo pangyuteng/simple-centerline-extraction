@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.ndimage.morphology import binary_dilation
+from scipy.ndimage import binary_dilation
 from scipy.ndimage import distance_transform_edt
 import unittest
 import SimpleITK as sitk
