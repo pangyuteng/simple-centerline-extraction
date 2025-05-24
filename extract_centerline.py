@@ -89,3 +89,13 @@ def smooth_3d_array(x,y,z,num=None,**kwargs):
     sz = UnivariateSpline(w,z,**kwargs)
     wnew = np.linspace(0,len(x),num)
     return sx(wnew),sy(wnew),sz(wnew)
+
+"""
+
+TODO:
+replace UnivariateSpline with csaps
+de Boor, A Practical Guide to Splines, Springer-Verlag, 1978 
+https://csaps.readthedocs.io/en/latest 
+https://www.mathworks.com/help/curvefit/csaps.html
+
+"""
