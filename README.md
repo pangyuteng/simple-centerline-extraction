@@ -23,10 +23,13 @@ centerline_list = extract_centerline(img,start_point,end_point)
 
 
 
-#### Reference
+#### Please Cite below
 
 Teng, Pang-yu, Ahmet Murat Bagci, and Noam Alperin. "Automated prescription of an optimal imaging plane for measurement of cerebral blood flow by phase contrast magnetic resonance imaging." IEEE Transactions on Biomedical Engineering 58.9 (2011): 2566-2573.
 https://www.ncbi.nlm.nih.gov/pubmed/21672671
+
+Zhou, Yong, and Arthur W. Toga. "Efficient skeletonization of volumetric objects." IEEE Transactions on visualization and computer graphics 5.3 (1999): 196-209.
+https://pmc.ncbi.nlm.nih.gov/articles/PMC2936771/
 
 #### wip
 
